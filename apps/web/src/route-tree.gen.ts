@@ -10,33 +10,43 @@
 
 import { Route as rootRouteImport } from './pages/__root'
 import { Route as AppIndexRouteImport } from './pages/_app/index'
+import { Route as AppAuthIndexRouteImport } from './pages/_app/auth/index'
 
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/_app/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppAuthIndexRoute = AppAuthIndexRouteImport.update({
+  id: '/_app/auth/',
+  path: '/auth/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/auth': typeof AppAuthIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
+  '/auth': typeof AppAuthIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app/': typeof AppIndexRoute
+  '/_app/auth/': typeof AppAuthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/auth'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/_app/'
+  to: '/' | '/auth'
+  id: '__root__' | '/_app/' | '/_app/auth/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
+  AppAuthIndexRoute: typeof AppAuthIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +58,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/auth/': {
+      id: '/_app/auth/'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AppAuthIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   AppIndexRoute: AppIndexRoute,
+  AppAuthIndexRoute: AppAuthIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

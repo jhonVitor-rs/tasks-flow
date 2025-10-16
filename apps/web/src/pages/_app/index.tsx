@@ -24,9 +24,9 @@ function AppIndex() {
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
           <div className="text-2xl font-black text-primary">TaskFlow</div>
-          {/* <Link to="/auth"> */}
-          <Button variant={"outline"}>Login</Button>
-          {/* </Link> */}
+          <Link to="/auth">
+            <Button variant={"outline"}>Login</Button>
+          </Link>
         </nav>
       </header>
 
@@ -43,14 +43,14 @@ function AppIndex() {
             one place.
           </p>
           <div className="flex gap-4 justify-center">
-            {/* <Link to="/auth"> */}
-            <Button
-              size={"lg"}
-              className="bg-primary hover:opacity-90 shadow shadow-primary"
-            >
-              Get started for free <ArrowRight className="ml-2 size-5" />
-            </Button>
-            {/* </Link> */}
+            <Link to="/auth">
+              <Button
+                size={"lg"}
+                className="bg-primary hover:opacity-90 shadow shadow-primary"
+              >
+                Get started for free <ArrowRight className="ml-2 size-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -127,11 +127,11 @@ function AppIndex() {
           <p className="text-background/90 text-lg mb-8">
             Start organizing your tasks right now.
           </p>
-          {/* <Link to='/auth'> */}
-          <Button size={"lg"} variant={"secondary"}>
-            Create Free Account
-          </Button>
-          {/* </Link> */}
+          <Link to="/auth">
+            <Button size={"lg"} variant={"secondary"}>
+              Create Free Account
+            </Button>
+          </Link>
         </div>
       </section>
 
