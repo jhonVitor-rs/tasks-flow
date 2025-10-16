@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './pages/__root'
 import { Route as AppIndexRouteImport } from './pages/_app/index'
+import { Route as AppTasksIndexRouteImport } from './pages/_app/tasks/index'
 import { Route as AppAuthIndexRouteImport } from './pages/_app/auth/index'
 
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/_app/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppTasksIndexRoute = AppTasksIndexRouteImport.update({
+  id: '/_app/tasks/',
+  path: '/tasks/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppAuthIndexRoute = AppAuthIndexRouteImport.update({
@@ -26,27 +32,31 @@ const AppAuthIndexRoute = AppAuthIndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/auth': typeof AppAuthIndexRoute
+  '/tasks': typeof AppTasksIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/auth': typeof AppAuthIndexRoute
+  '/tasks': typeof AppTasksIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app/': typeof AppIndexRoute
   '/_app/auth/': typeof AppAuthIndexRoute
+  '/_app/tasks/': typeof AppTasksIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth'
+  fullPaths: '/' | '/auth' | '/tasks'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth'
-  id: '__root__' | '/_app/' | '/_app/auth/'
+  to: '/' | '/auth' | '/tasks'
+  id: '__root__' | '/_app/' | '/_app/auth/' | '/_app/tasks/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppAuthIndexRoute: typeof AppAuthIndexRoute
+  AppTasksIndexRoute: typeof AppTasksIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/tasks/': {
+      id: '/_app/tasks/'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof AppTasksIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/auth/': {
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppAuthIndexRoute: AppAuthIndexRoute,
+  AppTasksIndexRoute: AppTasksIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_app/auth/")({
 function RouteComponent() {
   return (
     <div className="bg-muted min-h-screen p-2 md:p-4">
-      <div className="flex w-full px-4 py-2">
+      <div className="flex w-full md:px-4 py-2 mb-2">
         <Link to="/">
           <Button
             variant={"ghost"}
