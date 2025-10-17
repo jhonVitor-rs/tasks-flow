@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useTasksActions, type Task } from "../stores/tasks";
 import { Button } from "./ui/button";
 import { Eye, Trash2 } from "lucide-react";
@@ -7,11 +8,11 @@ export function TaskTableActions({ task }: { task: Task }) {
 
   return (
     <div className="flex items-center justify-around w-full gap-4">
-      {/* <Link to={`/tasks/${task.id}`}> */}
-      <Button size={"icon"} variant={"link"} className="rounded-full">
-        <Eye />
-      </Button>
-      {/* </Link> */}
+      <Link to="/tasks/$taskId" params={{ taskId: task.id }}>
+        <Button size={"icon"} variant={"link"} className="rounded-full">
+          <Eye />
+        </Button>
+      </Link>
       <Button
         size={"icon"}
         variant={"destructive"}
