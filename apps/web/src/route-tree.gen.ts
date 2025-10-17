@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './pages/__root'
 import { Route as AppIndexRouteImport } from './pages/_app/index'
 import { Route as AppTasksIndexRouteImport } from './pages/_app/tasks/index'
 import { Route as AppAuthIndexRouteImport } from './pages/_app/auth/index'
+import { Route as AppTasksTaskIdRouteImport } from './pages/_app/tasks/$taskId'
 
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/_app/',
@@ -28,33 +29,47 @@ const AppAuthIndexRoute = AppAuthIndexRouteImport.update({
   path: '/auth/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppTasksTaskIdRoute = AppTasksTaskIdRouteImport.update({
+  id: '/_app/tasks/$taskId',
+  path: '/tasks/$taskId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/tasks/$taskId': typeof AppTasksTaskIdRoute
   '/auth': typeof AppAuthIndexRoute
   '/tasks': typeof AppTasksIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
+  '/tasks/$taskId': typeof AppTasksTaskIdRoute
   '/auth': typeof AppAuthIndexRoute
   '/tasks': typeof AppTasksIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app/': typeof AppIndexRoute
+  '/_app/tasks/$taskId': typeof AppTasksTaskIdRoute
   '/_app/auth/': typeof AppAuthIndexRoute
   '/_app/tasks/': typeof AppTasksIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/tasks'
+  fullPaths: '/' | '/tasks/$taskId' | '/auth' | '/tasks'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/tasks'
-  id: '__root__' | '/_app/' | '/_app/auth/' | '/_app/tasks/'
+  to: '/' | '/tasks/$taskId' | '/auth' | '/tasks'
+  id:
+    | '__root__'
+    | '/_app/'
+    | '/_app/tasks/$taskId'
+    | '/_app/auth/'
+    | '/_app/tasks/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
+  AppTasksTaskIdRoute: typeof AppTasksTaskIdRoute
   AppAuthIndexRoute: typeof AppAuthIndexRoute
   AppTasksIndexRoute: typeof AppTasksIndexRoute
 }
@@ -82,11 +97,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAuthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/tasks/$taskId': {
+      id: '/_app/tasks/$taskId'
+      path: '/tasks/$taskId'
+      fullPath: '/tasks/$taskId'
+      preLoaderRoute: typeof AppTasksTaskIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   AppIndexRoute: AppIndexRoute,
+  AppTasksTaskIdRoute: AppTasksTaskIdRoute,
   AppAuthIndexRoute: AppAuthIndexRoute,
   AppTasksIndexRoute: AppTasksIndexRoute,
 }
