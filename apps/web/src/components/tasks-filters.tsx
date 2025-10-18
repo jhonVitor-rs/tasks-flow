@@ -18,6 +18,12 @@ import { isTaskPriority } from "../constants/task-priority";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Badge } from "./ui/badge";
 import { Card, CardContent } from "./ui/card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./ui/accordion";
 
 function FilterForm() {
   const { input, priority, status, termInterval } = useTasksFilters();
@@ -336,7 +342,19 @@ export function TasksFilters() {
       {/* Desktop: Inline */}
       <Card className="hidden md:block">
         <CardContent>
-          <FilterForm />
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="Flter">
+              <AccordionTrigger>
+                <span className="text-xl font-semibold flex items-center gap-4">
+                  <Filter className="size-4" />
+                  Filters
+                </span>
+              </AccordionTrigger>
+              <AccordionContent>
+                <FilterForm />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </CardContent>
       </Card>
     </div>

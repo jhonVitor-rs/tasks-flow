@@ -103,9 +103,9 @@ export function StatusTaskSelect({
 }: {
   status: keyof typeof statusConfig;
   className?: string;
-  changeValue: (value: string) => void;
+  changeValue: (value: "todo" | "in_progress" | "review" | "done") => void;
 }) {
-  const currentStatus = statusConfig[status];
+  const currentStatus = statusConfig[status || "todo"];
 
   return (
     <Select value={status} onValueChange={changeValue}>
@@ -123,7 +123,7 @@ export function StatusTaskSelect({
           <SelectValue placeholder="Select a task status" />
         </div>
       </SelectTrigger>
-      <SelectContent position="popper" className="w-[140px]">
+      <SelectContent position="popper" className="w-[170px]">
         {Object.entries(statusConfig).map(([key, config]) => {
           const Icon = config.icon;
           return (
@@ -179,9 +179,9 @@ export function PriorityTaskSelect({
 }: {
   priority: keyof typeof priorityConfig;
   className?: string;
-  changeValue: (value: string) => void;
+  changeValue: (value: "low" | "medium" | "high" | "urgent") => void;
 }) {
-  const currentPriority = priorityConfig[priority];
+  const currentPriority = priorityConfig[priority || "low"];
 
   return (
     <Select value={priority} onValueChange={changeValue}>
@@ -199,7 +199,7 @@ export function PriorityTaskSelect({
           <SelectValue placeholder="Select priority" />
         </div>
       </SelectTrigger>
-      <SelectContent position="popper" className="w-[120px]">
+      <SelectContent position="popper" className="w-[150px]">
         {Object.entries(priorityConfig).map(([key, config]) => {
           const Icon = config.icon;
           return (
