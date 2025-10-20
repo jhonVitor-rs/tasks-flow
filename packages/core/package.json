@@ -1,6 +1,5 @@
 {
   "name": "@tasks/core",
   "version": "1.0.0",
-  "main": "./src/index.ts",
-  "type": "module"
+  "main": "./src/index.ts"
 }
