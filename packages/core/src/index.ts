@@ -1,4 +1,10 @@
+// Auth Service
+export * from "./dtos/auth/register"
+export * from "./dtos/auth/response"
 
+export * from "./commands/auth"
+
+// Tasks Service
 export * from "./constants/events-type.enum"
 export * from "./constants/task-status.enum"
 export * from "./constants/task-priority.enum"
