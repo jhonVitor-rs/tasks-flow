@@ -12,5 +12,10 @@ export * from "./constants/task-status.enum"
 export * from "./constants/task-priority.enum"
 
 export * from "./dtos/task/create-task.dto"
+export * from "./dtos/task/update-task-command.dto"
+export * from "./dtos/task/create-comment.dto"
 
 export * from "./commands/task"
+
+// Events Service
+export * from "./dtos/event/create-event.dto"
