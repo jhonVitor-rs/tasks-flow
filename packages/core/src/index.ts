@@ -1,4 +1,5 @@
 // Auth Service
+export * from "./dtos/auth/login"
 export * from "./dtos/auth/register"
 export * from "./dtos/auth/response"
 
