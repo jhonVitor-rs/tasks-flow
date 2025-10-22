@@ -18,6 +18,8 @@ export * from "./dtos/task/create-comment.dto"
 export * from "./dtos/task/get-task-response"
 export * from "./dtos/task/get-all-tasks.dto"
 export * from "./dtos/task/pagination-response.dto"
+export * from "./dtos/task/comment-response.dto"
+export * from "./dtos/task/get-all-comments.dto"
 
 export * from "./commands/task"
 
