@@ -1,12 +1,9 @@
 import { Expose } from "class-transformer";
+import { GetUser } from "./get-user";
 
 export class AuthResponseDto {
   @Expose()
-  user!: {
-    id: string;
-    name: string;
-    email: string
-  }
+  user!: GetUser
 
   @Expose()
   accessToken!: string;

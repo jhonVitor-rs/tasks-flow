@@ -24,6 +24,7 @@
   "dependencies": {
     "@nestjs/cqrs": "^11.0.3",
     "@nestjs/jwt": "^11.0.1",
+    "@nestjs/mapped-types": "^2.1.0",
     "@nestjs/microservices": "10",
     "@nestjs/typeorm": "^11.0.0",
     "amqp-connection-manager": "^5.0.0",
