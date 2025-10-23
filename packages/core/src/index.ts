@@ -24,4 +24,5 @@ export * from "./dtos/task/get-all-comments.dto"
 export * from "./commands/task"
 
 // Events Service
-export * from "./dtos/event/create-event.dto"
+export * from "./dtos/notification/create-notification.dto"
+export * from "./commands/notifications"

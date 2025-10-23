@@ -27,6 +27,10 @@ class BaseTaskDto {
   @IsDateString()
   term!: string;
 
+  @IsString()
+  @IsUUID()
+  modifiedBy!: string;
+
   @IsArray()
   @IsUUID('4', { each: true })
   assigneeIds?: string[];
