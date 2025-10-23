@@ -12,11 +12,9 @@ export class CreateNotificationDto<T = any> {
   payload!: T;
 
   @IsUUID()
-  @IsOptional()
   taskId?: string;
 
   @IsUUID()
-  @IsOptional()
   actorId?: string;
 
   @IsString()

@@ -27,19 +27,23 @@ class BaseTaskDto {
   @IsDateString()
   term!: string;
 
-  @IsString()
-  @IsUUID()
-  modifiedBy!: string;
-
   @IsArray()
   @IsUUID('4', { each: true })
   assigneeIds?: string[];
 }
 
-export class UpdateTaskDto extends PartialType(BaseTaskDto) {}
+export class UpdateTaskDto extends PartialType(BaseTaskDto) {
+  @IsString()
+  @IsUUID()
+  modifiedBy!: string;
+}
 
 export class UpdateTaskCommandDto extends PartialType(BaseTaskDto) {
   @IsString()
   @IsUUID()
   id!: string
+
+  @IsString()
+  @IsUUID()
+  modifiedBy!: string;
 }
