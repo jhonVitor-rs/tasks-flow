@@ -11,5 +11,5 @@ export const TASK_PATTERNS = {
 export const TASK_EVENTS = {
   TASK_CREATED: 'task.created',
   TASK_UPDATED: 'task.updated',
-  COMMNTED: 'task.commented.created'
+  COMMENTED: 'task.commented.created'
 }

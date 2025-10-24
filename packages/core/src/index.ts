@@ -1,28 +1,34 @@
-// Auth Service
-export * from "./dtos/auth/login"
-export * from "./dtos/auth/refresh"
-export * from "./dtos/auth/register"
-export * from "./dtos/auth/response"
-export * from "./dtos/auth/get-user"
-
+// Auth Commands
 export * from "./commands/auth"
 
-// Tasks Service
+// Auth Types
+export * from "./types/auth/auth-response"
+export * from "./types/auth/login-user"
+export * from "./types/auth/register-user"
+export * from "./types/auth/user"
+
+// Notification Commands
+export * from "./commands/notifications"
+
+// Notifications Constants
 export * from "./constants/events-type.enum"
+
+// Notification Types
+export * from "./types/notification/notification"
+
+// Tasks Constants
 export * from "./constants/task-status.enum"
 export * from "./constants/task-priority.enum"
 
-export * from "./dtos/task/create-task.dto"
-export * from "./dtos/task/update-task-command.dto"
-export * from "./dtos/task/create-comment.dto"
-export * from "./dtos/task/get-task-response"
-export * from "./dtos/task/get-all-tasks.dto"
-export * from "./dtos/task/pagination-response.dto"
-export * from "./dtos/task/comment-response.dto"
-export * from "./dtos/task/get-all-comments.dto"
-
+// Task Commands
 export * from "./commands/task"
 
-// Events Service
-export * from "./dtos/notification/create-notification.dto"
-export * from "./commands/notifications"
+// Task Types
+export * from "./types/task/comment"
+export * from "./types/task/comments-query"
+export * from "./types/task/create-comment"
+export * from "./types/task/create-task"
+export * from "./types/task/pagination"
+export * from "./types/task/task"
+export * from "./types/task/tasks-query"
+export * from "./types/task/updated-task"
