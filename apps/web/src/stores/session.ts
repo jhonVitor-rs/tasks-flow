@@ -17,7 +17,7 @@ interface SessionState {
   }
 }
 
-const useSessionStore = create<SessionState>()(
+export const useSessionStore = create<SessionState>()(
   persist(
     (set) => ({
       user: null,

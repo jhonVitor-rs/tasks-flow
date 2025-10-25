@@ -20,6 +20,11 @@ import {
 } from "./ui/form";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { useRegister } from "../hooks/use-register";
+import { useSessionActions } from "../stores/session";
+import { setToken } from "../utils/auth";
+import { toast } from "sonner";
+import { useRouter } from "@tanstack/react-router";
 
 const formSchema = z.object({
   name: z.string().min(5).max(50),
@@ -28,6 +33,10 @@ const formSchema = z.object({
 });
 
 export function RegisterForm() {
+  const router = useRouter();
+  const registerMutation = useRegister();
+  const { setUser, logout } = useSessionActions();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -38,7 +47,25 @@ export function RegisterForm() {
   });
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    console.log(data);
+    registerMutation.mutate(
+      { name: data.name, email: data.email, password: data.password },
+      {
+        onSuccess: (data) => {
+          setUser({
+            id: data.user.id,
+            name: data.user.name,
+            email: data.user.email,
+          });
+          setToken(data.accessToken);
+          toast.success("Login sucessful");
+          router.navigate({ to: "/tasks" });
+        },
+        onError: () => {
+          logout();
+          toast.error("Autentication Failed");
+        },
+      }
+    );
   });
 
   return (

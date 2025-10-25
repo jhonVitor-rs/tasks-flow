@@ -3,7 +3,8 @@ import { getToken, setToken } from './auth'
 import { useSessionActions } from '../stores/session'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  withCredentials: true
 })
 
 // Adiciona AccessToken em todas as requsições
