@@ -1,0 +1,47 @@
+### Get all
+GET http://localhost:3000/api/tasks?page=1&size=10
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4NTllYzU3ZS0wMTA3LTQzNDItYmExYS1kYjFkN2RjZTJiMjgiLCJuYW1lIjoiSm_Do28iLCJlbWFpbCI6ImpvYW8uc2liZW5AZW1haWwuY29tIiwiaWF0IjoxNzYxMjUwNTg1LCJleHAiOjE3NjEyNTE0ODV9.SE6tTK3YmDoVvfqJ1WJIH5bKDBJ7KpDSCQT3sKa9lGs
+
+
+### Create
+POST http://localhost:3000/api/tasks
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4NTllYzU3ZS0wMTA3LTQzNDItYmExYS1kYjFkN2RjZTJiMjgiLCJuYW1lIjoiSm_Do28iLCJlbWFpbCI6ImpvYW8uc2liZW5AZW1haWwuY29tIiwiaWF0IjoxNzYxMjUwNTg1LCJleHAiOjE3NjEyNTE0ODV9.SE6tTK3YmDoVvfqJ1WJIH5bKDBJ7KpDSCQT3sKa9lGs
+
+{
+  "title": "Implementar sistema de login",
+  "status": "in_progress",
+  "priority": "high",
+  "term": "2025-10-30T18:00:00.000Z",
+  "createdBy": "859ec57e-0107-4342-ba1a-db1d7dce2b28"
+}
+
+### Busca especifica
+GET http://localhost:3000/api/tasks/821dcadb-511a-4c55-9f3a-ca0cd01dd6e9
+
+
+### Update
+PATCH http://localhost:3000/api/tasks/88ddbdf2-1c44-4264-940c-2b0b4d4edfe8
+Content-Type: application/json
+
+{
+  "description": "Verificando erro no socket.",
+  "modifiedBy": "88ddbdf2-1c44-4264-940c-2b0b4d4edfe8"
+}
+
+
+### Delete
+DELETE http://localhost:3000/api/tasks/821dcadb-511a-4c55-9f3a-ca0cd01dd6e9
+
+
+### Create Comment
+POST http://localhost:3000/api/tasks/88ddbdf2-1c44-4264-940c-2b0b4d4edfe8/comments
+Content-Type: application/json
+
+{
+  "authorId": "859ec57e-0107-4342-ba1a-db1d7dce2b28",
+  "message": "Testando criaçõa de comentários"
+}
+
+### Get all comments
+GET http://localhost:3000/api/tasks/88ddbdf2-1c44-4264-940c-2b0b4d4edfe8/comments?page=1&size=10

@@ -1,0 +1,23 @@
+### Register User
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "João",
+  "email": "joao.siben@email.com",
+  "password": "joao123456"
+}
+
+### Login
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "joao.siben@email.com",
+  "password": "joao123456"
+}
+
+### Refresh token
+POST http://localhost:3000/api/auth/refresh
+Content-Type: application/json
+Cookie: refresh_token=55ee95f02fc51e5af433e527977c2b479b20bfc9bbb7de7911a1b6d68b9cdacfacfa6eb0d641c4b48143fbb0fb852d9472370428b4d67059534e80e735d34d74; Max-Age=604800
