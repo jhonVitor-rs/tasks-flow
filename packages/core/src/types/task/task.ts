@@ -7,6 +7,7 @@ export interface IBasicTask {
   status: TaskStatus;
   priority: TaskPriority;
   term: Date
+  commentsCount: number
   createdAt: Date;
 }
 

@@ -17,6 +17,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  optimizeDeps: {
+    include: ['@repo/core']
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

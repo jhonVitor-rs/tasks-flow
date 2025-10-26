@@ -1,6 +1,7 @@
 import axios from 'axios'
-import { getToken, setToken } from './auth'
+import { clearToken, getToken, setToken } from './auth'
 import { useSessionActions } from '../stores/session'
+import { toast } from 'sonner'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
@@ -24,19 +25,29 @@ api.interceptors.response.use(
       originalRequest._retry = true
 
       try {
-        const refreshToken = sessionStorage.getItem('refresh_token')
         const { data } = await axios.post(
-          `${import.meta.env.VITE_API_URL}/auth/refresh`,
-          { refreshToken: refreshToken }
-        )
+          `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/auth/refresh`,
+          {},
+          {
+            withCredentials: true,
+          }
+        );
 
         setToken(data.access_token)
+
         originalRequest.headers.Authorization = `Bearer ${data.access_token}`
         return api(originalRequest)
-      } catch {
-        const { logout } = useSessionActions()
-        logout()
-        window.location.href = '/auth'
+      } catch (refreshError) {
+        console.error('Refresh token failed:', refreshError);
+
+        const { logout } = useSessionActions();
+        clearToken();
+        logout();
+
+        toast.error('Your session has expired. Please login again.');
+        window.location.href = '/auth';
+
+        return Promise.reject(refreshError);
       }
     }
 

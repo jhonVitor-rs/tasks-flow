@@ -19,6 +19,7 @@ export * from "./types/notification/notification"
 // Tasks Constants
 export * from "./constants/task-status.enum"
 export * from "./constants/task-priority.enum"
+export * from './constants/task-query-order.enum'
 
 // Task Commands
 export * from "./commands/task"

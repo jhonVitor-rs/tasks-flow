@@ -1,19 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "../../../components/ui/button";
 import { LogOut, Plus } from "lucide-react";
-import { sampleTasks, useTasksActions } from "../../../stores/tasks";
-import { useEffect } from "react";
 import { TasksFilters } from "../../../components/tasks-filters";
 import { TasksTable } from "../../../components/tasks-table";
+import { useSimpleMiddleware } from "../../../hooks/use-simple-middleware";
+import { useQueryTasks } from "../../../hooks/use-query-tasks";
 
 export const Route = createFileRoute("/_app/tasks/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { setTasks } = useTasksActions();
-
-  useEffect(() => setTasks(sampleTasks));
+  useSimpleMiddleware();
+  useQueryTasks();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-muted to-primary/60">

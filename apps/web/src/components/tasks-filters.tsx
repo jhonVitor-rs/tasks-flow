@@ -1,5 +1,5 @@
 import { CalendarIcon, Filter, X } from "lucide-react";
-import { useTasksActions, useTasksFilters } from "../stores/tasks";
+import { useTaskQuery, useTasksActions } from "../stores/tasks";
 import { Button } from "./ui/button";
 import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "./ui/drawer";
 import { Label } from "./ui/label";
@@ -26,64 +26,80 @@ import {
 } from "./ui/accordion";
 
 function FilterForm() {
-  const { input, priority, status, termInterval } = useTasksFilters();
-  const { setInputFilter, setPriorityFilter, setStatusFilter, setTermFilter } =
-    useTasksActions();
+  const query = useTaskQuery();
+  const { setQuery } = useTasksActions();
 
-  const selectedRange = termInterval
-    ? { from: termInterval.gte ?? undefined, to: termInterval.lte ?? undefined }
+  const selectedRange = query.termInterval
+    ? {
+        from: new Date(query.termInterval.gte ?? undefined),
+        to: new Date(query.termInterval.lte ?? undefined),
+      }
     : undefined;
 
-  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
-    setInputFilter(e.target.value);
+  const handleTitle = (e: ChangeEvent<HTMLInputElement>) => {
+    setQuery({ ...query, title: e.target.value });
   };
 
   const handleStatus = (value: string) => {
     if (isTaskStatus(value)) {
-      setStatusFilter(value);
+      setQuery({ ...query, status: value });
     } else if (value === "all") {
-      setStatusFilter(null);
+      setQuery({ ...query, status: undefined });
     }
   };
 
   const handlePriority = (value: string) => {
     if (isTaskPriority(value)) {
-      setPriorityFilter(value);
+      setQuery({ ...query, priority: value });
     } else if (value === "all") {
-      setPriorityFilter(null);
+      setQuery({ ...query, priority: undefined });
     }
   };
 
   const handleDateChange = (range: { from?: Date; to?: Date } | undefined) => {
     if (range?.from && range.to) {
-      setTermFilter({
-        gte: range.from,
-        lte: range.to,
+      setQuery({
+        ...query,
+        termInterval: {
+          gte: range.from.toDateString(),
+          lte: range.to.toDateString(),
+        },
       });
     } else if (range?.from && !range.to) {
-      setTermFilter({
-        gte: range.from,
-        lte: range.to || null,
+      setQuery({
+        ...query,
+        termInterval: {
+          gte: range.from.toDateString(),
+          lte: range.from.toDateString(),
+        },
       });
     } else {
-      setTermFilter(null);
+      setQuery({ ...query, termInterval: undefined });
     }
   };
 
   const clearAllFilters = () => {
-    setInputFilter(null);
-    setStatusFilter(null);
-    setPriorityFilter(null);
-    setTermFilter(null);
+    setQuery({
+      ...query,
+      title: undefined,
+      status: undefined,
+      priority: undefined,
+      termInterval: undefined,
+    });
   };
 
-  const hasActiveFilters = input || priority || status || termInterval;
+  const hasActiveFilters =
+    query.title || query.priority || query.status || query.termInterval;
 
   const formatDateRange = () => {
-    if (!termInterval) return "Select date range";
+    if (!query.termInterval) return "Select date range";
 
-    const fromDate = termInterval.gte ? new Date(termInterval.gte) : null;
-    const toDate = termInterval.lte ? new Date(termInterval.lte) : null;
+    const fromDate = query.termInterval.gte
+      ? new Date(query.termInterval.gte)
+      : null;
+    const toDate = query.termInterval.lte
+      ? new Date(query.termInterval.lte)
+      : null;
 
     const from = fromDate?.toLocaleDateString("pt-BR", {
       day: "2-digit",
@@ -108,7 +124,14 @@ function FilterForm() {
               variant="secondary"
               className="rounded-full px-2 py-0.5 text-xs"
             >
-              {[input, priority, status, termInterval].filter(Boolean).length}
+              {
+                [
+                  query.title,
+                  query.priority,
+                  query.status,
+                  query.termInterval,
+                ].filter(Boolean).length
+              }
             </Badge>
           )}
         </div>
@@ -132,8 +155,8 @@ function FilterForm() {
         </Label>
         <Input
           id="search-input"
-          value={input || ""}
-          onChange={handleInput}
+          value={query.title || ""}
+          onChange={handleTitle}
           placeholder="Search task by title..."
           className="bg-input/70 border-border focus-visible:ring-primary"
         />
@@ -146,7 +169,7 @@ function FilterForm() {
           <Label htmlFor="status-select" className="text-sm font-medium">
             Status
           </Label>
-          <Select value={status || "all"} onValueChange={handleStatus}>
+          <Select value={query.status || "all"} onValueChange={handleStatus}>
             <SelectTrigger
               id="status-select"
               className="w-full bg-background border-border"
@@ -188,7 +211,10 @@ function FilterForm() {
           <Label htmlFor="priority-select" className="text-sm font-medium">
             Priority
           </Label>
-          <Select value={priority || "all"} onValueChange={handlePriority}>
+          <Select
+            value={query.priority || "all"}
+            onValueChange={handlePriority}
+          >
             <SelectTrigger
               id="priority-select"
               className="w-full bg-background border-border"
@@ -246,7 +272,7 @@ function FilterForm() {
             <PopoverTrigger asChild className="hidden md:flex">
               <Button
                 variant="outline"
-                data-empty={!termInterval}
+                data-empty={!query.termInterval}
                 className="w-full justify-start text-left font-normal data-[empty=true]:text-muted-foreground border-border"
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
@@ -270,41 +296,41 @@ function FilterForm() {
       {hasActiveFilters && (
         <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
           <span className="text-xs text-muted-foreground">Active filters:</span>
-          {input && (
+          {query.title && (
             <Badge
               variant="secondary"
               className="gap-1 cursor-pointer hover:bg-secondary/80"
-              onClick={() => setInputFilter(null)}
+              onClick={() => setQuery({ ...query, title: undefined })}
             >
-              Search: {input}
+              Search: {query.title}
               <X className="h-3 w-3" />
             </Badge>
           )}
-          {status && (
+          {query.status && (
             <Badge
               variant="secondary"
               className="gap-1 cursor-pointer hover:bg-secondary/80"
-              onClick={() => setStatusFilter(null)}
+              onClick={() => setQuery({ ...query, status: undefined })}
             >
-              Status: {status}
+              Status: {query.status}
               <X className="h-3 w-3" />
             </Badge>
           )}
-          {priority && (
+          {query.priority && (
             <Badge
               variant="secondary"
               className="gap-1 cursor-pointer hover:bg-secondary/80"
-              onClick={() => setPriorityFilter(null)}
+              onClick={() => setQuery({ ...query, priority: undefined })}
             >
-              Priority: {priority}
+              Priority: {query.priority}
               <X className="h-3 w-3" />
             </Badge>
           )}
-          {termInterval && (
+          {query.termInterval && (
             <Badge
               variant="secondary"
               className="gap-1 cursor-pointer hover:bg-secondary/80"
-              onClick={() => setTermFilter(null)}
+              onClick={() => setQuery({ ...query, termInterval: undefined })}
             >
               Date: {formatDateRange()}
               <X className="h-3 w-3" />

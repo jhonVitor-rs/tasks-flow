@@ -1,4 +1,5 @@
 import { TaskPriority } from "../../constants/task-priority.enum";
+import { TaskQueryOrder } from "../../constants/task-query-order.enum";
 import { TaskStatus } from "../../constants/task-status.enum";
 
 export interface ITasksQuery {
@@ -11,4 +12,6 @@ export interface ITasksQuery {
     gte: string;
     lte: string;
   }
+  orderBy?: TaskQueryOrder,
+  order?: 'DESC' | 'ASC'
 }

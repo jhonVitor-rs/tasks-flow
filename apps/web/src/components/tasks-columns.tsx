@@ -1,5 +1,4 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { type Task } from "../stores/tasks";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import {
   TaskStatusSelectAdapter,
@@ -21,11 +20,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import type { IBasicTask } from "@repo/core";
 
-export const tasksColumns: ColumnDef<Task>[] = [
+export const tasksColumns: ColumnDef<IBasicTask>[] = [
   {
     id: "title",
     accessorKey: "title",
+    enableSorting: true,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" className="pl-4" />
     ),
@@ -42,6 +43,7 @@ export const tasksColumns: ColumnDef<Task>[] = [
   {
     id: "status",
     accessorKey: "status",
+    enableSorting: true,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
     ),
@@ -57,6 +59,7 @@ export const tasksColumns: ColumnDef<Task>[] = [
   {
     id: "priority",
     accessorKey: "priority",
+    enableSorting: true,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Priority" />
     ),
@@ -72,6 +75,7 @@ export const tasksColumns: ColumnDef<Task>[] = [
   {
     id: "term",
     accessorKey: "term",
+    enableSorting: true,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Due Date" />
     ),
