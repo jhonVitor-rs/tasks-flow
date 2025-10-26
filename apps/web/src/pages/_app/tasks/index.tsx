@@ -1,18 +1,33 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { Button } from "../../../components/ui/button";
-import { LogOut, Plus } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { TasksFilters } from "../../../components/tasks-filters";
 import { TasksTable } from "../../../components/tasks-table";
 import { useSimpleMiddleware } from "../../../hooks/use-simple-middleware";
 import { useQueryTasks } from "../../../hooks/use-query-tasks";
+import { NewTaskForm } from "../../../components/new-task-form";
+import { useSocketConnect } from "../../../hooks/use-socket-connection";
+import { useGlobalEvents } from "../../../hooks/use-global-events";
+import { useSessionActions } from "../../../stores/session";
 
 export const Route = createFileRoute("/_app/tasks/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const { logout } = useSessionActions();
+  const router = useRouter();
+
   useSimpleMiddleware();
   useQueryTasks();
+
+  const socket = useSocketConnect();
+  useGlobalEvents(socket);
+
+  const handleLogout = () => {
+    logout();
+    router.navigate({ to: "/auth" });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-muted to-primary/60">
@@ -21,11 +36,8 @@ function RouteComponent() {
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-primary">My Tasks</h1>
             <div className="flex items-center gap-2">
-              <Button>
-                <Plus className="size-4 mr-1" />
-                New Task
-              </Button>
-              <Button variant={"outline"}>
+              <NewTaskForm />
+              <Button variant={"outline"} onClick={handleLogout}>
                 <LogOut />
               </Button>
             </div>

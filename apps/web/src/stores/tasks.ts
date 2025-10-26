@@ -6,6 +6,7 @@ interface TaskState {
   query: ITasksQuery,
   apiData: IPagination<IBasicTask>,
   apiLoading: boolean,
+  apiUpdated: boolean
 
   actions: {
     setApiData: (data: IPagination<IBasicTask>) => void
@@ -14,6 +15,8 @@ interface TaskState {
     updateSort: (orderBy?: TaskQueryOrder, order?: 'ASC' | 'DESC') => void;
     setQuery: (query: ITasksQuery) => void
     setApiLoading: (load: boolean) => void
+    cleanQuery: () => void
+    setApiUpdated: () => void
   }
 }
 
@@ -38,6 +41,8 @@ const useTaskStore = create<TaskState>()(
         totalPages: 1
       },
       apiLoading: false,
+      apiUpdated: false,
+
       actions: {
         setApiData: (data) => set({apiData: data}),
         addTask: (task) => set((s) => ({apiData: {...s.apiData, data: [...s.apiData.data, task]}})),
@@ -52,7 +57,20 @@ const useTaskStore = create<TaskState>()(
               page: 1,
             },
           })),
-        setApiLoading: (load) => set({apiLoading: load})
+        setApiLoading: (load) => set({ apiLoading: load }),
+        cleanQuery: () => set({
+          query: {
+            page: 1,
+            size: 10,
+            title: undefined,
+            status: undefined,
+            priority: undefined,
+            termInterval: undefined,
+            orderBy: undefined,
+            order: undefined
+          }
+        }),
+        setApiUpdated: () => set({apiUpdated: true})
       }
     }),
     {
@@ -70,4 +88,5 @@ export const useTasks = () => useTaskStore((state) => state.apiData.data)
 export const useApiData = () => useTaskStore((state) => state.apiData)
 export const useTaskQuery = () => useTaskStore((state) => state.query)
 export const useApiLoading = () => useTaskStore((state) => state.apiLoading)
+export const useApiUpdated = () => useTaskStore((state) => state.apiUpdated)
 export const useTasksActions = () => useTaskStore((state) => state.actions)
