@@ -10,13 +10,16 @@ import type { Socket } from "socket.io-client";
 import { toast } from "sonner";
 import { EventMessage } from "../components/event-message";
 import { useTasksActions } from "../stores/tasks";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function useGlobalEvents(socket: Socket | null) {
   const { setApiUpdated } = useTasksActions();
-
+  const queryClient = useQueryClient();
+  
   const onTaskCreated = useCallback(
     (data: INotification<IBasicTask>) => {
       setApiUpdated();
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
       toast.success(
         <EventMessage
           title="New Task Created"
@@ -25,12 +28,14 @@ export function useGlobalEvents(socket: Socket | null) {
         />
       );
     },
-    [setApiUpdated]
+    [setApiUpdated, queryClient]
   );
 
   const onTaskUpdated = useCallback(
     (data: INotification<ITask>) => {
       setApiUpdated();
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['task', data.payload.id] });
       toast(
         <EventMessage
           title="Task Updated"
@@ -39,12 +44,15 @@ export function useGlobalEvents(socket: Socket | null) {
         />
       );
     },
-    [setApiUpdated]
+    [setApiUpdated, queryClient]
   );
 
   const onTaskCommented = useCallback(
     (data: INotification<IComment>) => {
       setApiUpdated();
+      queryClient.invalidateQueries({ 
+        queryKey: ['comments', data.payload.taskId] 
+      });
       toast(
         <EventMessage
           title="New Comment"
@@ -53,25 +61,36 @@ export function useGlobalEvents(socket: Socket | null) {
         />
       );
     },
-    [setApiUpdated]
+    [setApiUpdated, queryClient]
   );
 
   useEffect(() => {
-    if (!socket || !socket.connected) {
-      console.warn(
-        "⚠️ Socket não está conectado, eventos não serão registrados"
-      );
+    if (!socket) {
+      console.warn("⚠️ Socket é null");
       return;
     }
 
-    console.log("📡 Registrando event listeners...");
+    console.log('🔌 Socket recebido, estado:', socket.connected ? 'conectado' : 'conectando...');
 
-    socket.on(TASK_EVENTS.TASK_CREATED, onTaskCreated);
-    socket.on(TASK_EVENTS.TASK_UPDATED, onTaskUpdated);
-    socket.on(TASK_EVENTS.COMMENTED, onTaskCommented);
+    const registerListeners = () => {
+      console.log("📡 Registrando event listeners...");
+      socket.on(TASK_EVENTS.TASK_CREATED, onTaskCreated);
+      socket.on(TASK_EVENTS.TASK_UPDATED, onTaskUpdated);
+      socket.on(TASK_EVENTS.COMMENTED, onTaskCommented);
+    };
+
+    if (socket.connected) {
+      registerListeners();
+    }
+
+    const onConnect = () => {
+      registerListeners();
+    };
+
+    socket.on('connect', onConnect);
 
     return () => {
-      console.log("🧹 Removendo event listeners...");
+      socket.off('connect', onConnect);
       socket.off(TASK_EVENTS.TASK_CREATED, onTaskCreated);
       socket.off(TASK_EVENTS.TASK_UPDATED, onTaskUpdated);
       socket.off(TASK_EVENTS.COMMENTED, onTaskCommented);

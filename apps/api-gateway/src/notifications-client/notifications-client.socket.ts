@@ -10,7 +10,7 @@ import { Server, Socket } from 'socket.io';
 // import { WsGuard } from 'src/guards/ws/ws.guard';
 
 @WebSocketGateway({
-  cors: { origin: process.env.FRONTEND_URL || '*' },
+  cors: { origin: process.env.FRONTEND_URL || 'http://localhost:5173' },
   namespace: '/api/notifications',
 })
 export class NotificationsClientSocket
@@ -23,7 +23,7 @@ export class NotificationsClientSocket
 
   // @UseGuards(WsGuard)
   async handleConnection(client: Socket) {
-    const userId = client.data.user?.id;
+    const userId = client.handshake.auth.userId;
 
     if (!userId) {
       console.warn(`Unauthorized socket connection: ${client.id}`);

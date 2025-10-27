@@ -80,7 +80,7 @@ export class GetAllTasksHandler
 
     const [data, total] = await Promise.all([
       queryBuilder
-        .orderBy(orderBy || 'task.createdAt', order || 'DESC')
+        .orderBy(orderBy || 'task.createdAt', order || 'ASC')
         .skip(skip)
         .take(size)
         .getRawMany(),

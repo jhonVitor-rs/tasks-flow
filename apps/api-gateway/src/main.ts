@@ -10,12 +10,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  const url = configService.get('FRONTEND_URL', '*');
-  console.log(url);
-
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors({
-    origin: configService.get('FRONTEND_URL', '*'),
+    origin: configService.get('FRONTEND_URL', 'http://localhost:5173'),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -23,8 +20,14 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.use(cookieParser());
 
-  const rabbitUrl = configService.get<string>('RABBITMQ_URL');
-  const gatewayQueue = configService.get<string>('GATEWAY_QUEUE');
+  const rabbitUrl = configService.get<string>(
+    'RABBITMQ_URL',
+    'amqp://admin:admin@localhost:5672',
+  );
+  const gatewayQueue = configService.get<string>(
+    'GATEWAY_QUEUE',
+    'gateway_queue',
+  );
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
@@ -54,8 +57,10 @@ async function bootstrap() {
   await app.listen(configService.get<number>('PORT') ?? 3000);
 
   console.log(
-    `🚀 Gateway running at: http://localhost:${configService.get('PORT')}`,
+    `🚀 Gateway running at: http://localhost:${configService.get('PORT', 3000)}`,
   );
-  console.log(`📘 Swagger: http://localhost:${configService.get('PORT')}/docs`);
+  console.log(
+    `📘 Swagger: http://localhost:${configService.get('PORT', 3000)}/docs`,
+  );
 }
 bootstrap();

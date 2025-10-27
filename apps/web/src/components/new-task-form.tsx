@@ -31,6 +31,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { cn } from "../lib/utils";
 import { useNewTaskMutation } from "../hooks/use-new-task-mutation";
 import type { TaskPriority, TaskStatus } from "@repo/core";
+import { useRef } from "react";
 
 const formShcema = z.object({
   title: z.string().min(3).max(100),
@@ -42,6 +43,7 @@ const formShcema = z.object({
 export function NewTaskForm() {
   const route = useRouter();
   const user = useUserSession();
+  const ref= useRef<HTMLButtonElement>(null)
   const newTaskMutation = useNewTaskMutation();
   const form = useForm<z.infer<typeof formShcema>>({
     resolver: zodResolver(formShcema),
@@ -63,10 +65,19 @@ export function NewTaskForm() {
         title: data.title,
         status: data.status as TaskStatus,
         priority: data.priority as TaskPriority,
-        term: data.term.toDateString(),
+        term: data.term.toISOString(),
         createdBy: user!.id,
       },
       {
+        onSuccess: () => {
+          form.reset({
+            title: "",
+            status: "todo",
+            priority: "low",
+            term: new Date(),
+          });
+          ref.current?.click()
+        },
         onError: (error) => {
           console.error(error);
           toast.warning("Error to create a task");
@@ -94,7 +105,7 @@ export function NewTaskForm() {
   return (
     <Dialog onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="w-full sm:w-auto">
+        <Button className="w-full sm:w-auto" ref={ref}>
           <span className="hidden sm:inline">Add New Task</span>
           <span className="sm:hidden">New Task</span>
         </Button>

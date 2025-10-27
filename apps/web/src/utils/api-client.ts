@@ -11,6 +11,7 @@ const api = axios.create({
 // Adiciona AccessToken em todas as requsições
 api.interceptors.request.use((config) => {
   const token = getToken()
+  console.log(token)
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
@@ -32,8 +33,8 @@ api.interceptors.response.use(
             withCredentials: true,
           }
         );
-
-        setToken(data.access_token)
+        
+        setToken(data.accessToken)
 
         originalRequest.headers.Authorization = `Bearer ${data.access_token}`
         return api(originalRequest)

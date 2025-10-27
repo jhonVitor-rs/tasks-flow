@@ -1,5 +1,6 @@
+import type { IBasicTask, TaskPriority, TaskStatus } from "@repo/core";
+import { useUpdateTask } from "../hooks/use-update-task";
 import { cn } from "../lib/utils";
-import { useTasksActions, type Task } from "../stores/tasks";
 import {
   Select,
   SelectContent,
@@ -17,6 +18,9 @@ import {
   Flag,
   Flame,
 } from "lucide-react";
+import { useUserSession } from "../stores/session";
+import { toast } from "sonner";
+import { useTasksActions } from "../stores/tasks";
 
 const statusConfig = {
   todo: {
@@ -153,14 +157,25 @@ export function TaskStatusSelectAdapter({
   task,
   className = "",
 }: {
-  task: Task;
+  task: IBasicTask;
   className?: string;
 }) {
-  const { updateTask } = useTasksActions();
+  const mutation = useUpdateTask()
+  const user = useUserSession()
+  const { updateTask } = useTasksActions()
+
 
   const handleStatusChange = (value: string) => {
     if (value === task.status) return;
-    updateTask({ ...task, status: value as Task["status"] });
+    updateTask({...task, status: value as TaskStatus})
+    mutation.mutate(
+      {id: task.id, modifiedBy: user!.id, status: value as TaskStatus},
+      {
+        onError: () => {
+          toast.warning(`Failed to update task ${task.title}`)
+        }
+      }
+    )
   };
 
   return (
@@ -229,14 +244,24 @@ export function TaskPrioritySelectAdapter({
   task,
   className = "",
 }: {
-  task: Task;
+  task: IBasicTask;
   className?: string;
 }) {
-  const { updateTask } = useTasksActions();
-
+  const mutation = useUpdateTask()
+  const user = useUserSession()
+  const { updateTask } = useTasksActions()
+  
   const handlePriorityChange = (value: string) => {
     if (value === task.priority) return;
-    updateTask({ ...task, priority: value as Task["priority"] });
+    updateTask({...task, priority: value as TaskPriority})
+    mutation.mutate(
+      {id: task.id, modifiedBy: user!.id, priority: value as TaskPriority},
+      {
+        onError: () => {
+          toast.warning(`Failed to update task ${task.title}`)
+        }
+      }
+    )
   };
 
   return (

@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client'
 import { getToken } from '../utils/auth'
-import { useSessionActions, useSocketSession } from '../stores/session'
+import { useSessionActions, useSocketSession, useUserSession } from '../stores/session'
 import { useEffect, useRef } from 'react'
 
 const SOCKET_URL = import.meta.env.VITE_API_SOCKET || 'ws://localhost:3000'
@@ -8,6 +8,7 @@ const SOCKET_URL = import.meta.env.VITE_API_SOCKET || 'ws://localhost:3000'
 export function useSocketConnect() {
   const token = getToken()
   const storedSocket = useSocketSession()
+  const user = useUserSession()
   const { setSocket } = useSessionActions()
   const socketRef = useRef<Socket | null>(null)
   const isInitialized = useRef(false)
@@ -31,7 +32,7 @@ export function useSocketConnect() {
 
     console.log('🔌 Criando nova conexão socket...')
     const newSocket = io(`${SOCKET_URL}/api/notifications`, {
-      auth: { token },
+      auth: { token, userId: user?.id },
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionDelay: 1000,
@@ -48,7 +49,7 @@ export function useSocketConnect() {
     })
 
     newSocket.on('connect_error', (error) => {
-      console.error('🔴 Erro de conexão:', error.message)
+      console.error('🔴 Erro de conexão:', error)
     })
 
     newSocket.on('reconnect', (attemptNumber) => {

@@ -11,6 +11,7 @@ interface TaskState {
   actions: {
     setApiData: (data: IPagination<IBasicTask>) => void
     addTask: (task: IBasicTask) => void
+    updateTask: (task: IBasicTask) => void
     removeTask: (id: string) => void
     updateSort: (orderBy?: TaskQueryOrder, order?: 'ASC' | 'DESC') => void;
     setQuery: (query: ITasksQuery) => void
@@ -45,8 +46,31 @@ const useTaskStore = create<TaskState>()(
 
       actions: {
         setApiData: (data) => set({apiData: data}),
-        addTask: (task) => set((s) => ({apiData: {...s.apiData, data: [...s.apiData.data, task]}})),
-        removeTask: (id) => set((s) => ({apiData: {...s.apiData, data: s.apiData.data.filter((d) => d.id !== id)}})),
+        addTask: (task) => 
+          set((s) => ({
+            apiData: {
+              ...s.apiData, 
+              data: [...s.apiData.data, task],
+              total: s.apiData.total + 1
+            }
+          })),
+        updateTask: (task) => 
+          set((s) => ({
+            apiData: {
+              ...s.apiData,
+              data: s.apiData.data.map((t) => 
+                t.id === task.id ? { ...t, ...task } : t
+              )
+            }
+          })),
+        removeTask: (id) => 
+          set((s) => ({
+            apiData: {
+              ...s.apiData,
+              data: s.apiData.data.filter((t) => t.id !== id),
+              total: s.apiData.total - 1
+            }
+          })),
         setQuery: (query) => set({ query: query }),
         updateSort: (orderBy, order) =>
           set((s) => ({
