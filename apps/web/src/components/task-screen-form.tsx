@@ -1,5 +1,4 @@
 import { z } from "zod";
-import type { Task } from "../stores/tasks";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -27,6 +26,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Textarea } from "./ui/textarea";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
+import { type ITask } from "@repo/core";
+import { useUpdateTask } from "../hooks/use-update-task";
+import { useUserSession } from "../stores/session";
 
 const formSchema = z.object({
   title: z.string().min(3).max(100),
@@ -36,24 +38,30 @@ const formSchema = z.object({
   term: z.date(),
 });
 
-export function TaskScreenForm({ task }: { task: Task }) {
+export function TaskScreenForm({ task }: { task: ITask }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: task.title,
-      description: "",
+      description: task.description,
       status: task.status,
       priority: task.priority,
       term: new Date(),
     },
   });
 
+  const user = useUserSession()
+  const mutation = useUpdateTask()
+
   const handleUpdate = () => {
-    console.log("Update", form.getValues());
+    console.log("disparou")
+    mutation.mutate(
+      {id: task.id, modifiedBy: user!.id, title: task.title, description: task.description, status: task.status, priority: task.priority, term: new Date(task.term).toISOString() }
+    )
   };
 
-  const statuUpdate = (vaule: "todo" | "in_progress" | "review" | "done") => {
-    form.setValue("status", vaule);
+  const statuUpdate = (value: "todo" | "in_progress" | "review" | "done") => {
+    form.setValue("status", value);
     handleUpdate();
   };
 
@@ -69,13 +77,11 @@ export function TaskScreenForm({ task }: { task: Task }) {
     }
   };
 
-  const createdAt = new Date().toLocaleDateString("en-US", {
+  const createdAt = new Date(task.createdAt).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
-
-  const createdBy = "João Silva";
 
   return (
     <Form {...form}>
@@ -103,7 +109,7 @@ export function TaskScreenForm({ task }: { task: Task }) {
                   <span className="text-muted-foreground/50">*</span>
                   <div className="flex items-center gap-1.5">
                     <User className="size-3" />
-                    <span>by {createdBy}</span>
+                    <span>by {task.createdBy.name}</span>
                   </div>
                   <span className="text-muted-foreground/50">*</span>
                   <Badge variant={"outline"} className="text-xs px-2 py-0">

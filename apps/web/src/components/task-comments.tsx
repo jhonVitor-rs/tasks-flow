@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -19,21 +19,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
-import { Clock, Edit2, MessageSquare, Send, Trash2 } from "lucide-react";
+import { Clock, MessageSquare, Send } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "./ui/alert-dialog";
 import { cn } from "../lib/utils";
+import { useCommentsQuery } from "../hooks/use-comments-query";
+import type { IComment } from "@repo/core";
+import { useUserSession } from "../stores/session";
+import { useCommentMutation } from "../hooks/use-comment-mutation";
+import { toast } from "sonner";
+import { useSocketConnect } from "../hooks/use-socket-connection";
+import { useGlobalEvents } from "../hooks/use-global-events";
 
 const formSchema = z.object({
   message: z
@@ -41,45 +37,22 @@ const formSchema = z.object({
     .min(10, "Message must be at least 10 characters")
     .max(500, "Message isto long"),
 });
+export function TaskComments({taskId}: {taskId: string}) {
+  const [page, setPage] = useState(1)
+  const [comments, setComments] = useState<IComment[]>([]);
+  const result = useCommentsQuery(taskId, {page , size: 10, taskId: taskId})
+  const user = useUserSession()
+  const mutation = useCommentMutation(taskId)
 
-type Comment = {
-  id: string;
-  author: string;
-  authorEmail: string;
-  createdAt: Date;
-  description: string;
-  isEdited?: boolean;
-};
+  const socket = useSocketConnect();
+  useGlobalEvents(socket);
 
-export function TaskComments() {
-  const [comments, setComments] = useState<Comment[]>([
-    {
-      id: "1",
-      author: "João Silva",
-      authorEmail: "joao@example.com",
-      createdAt: new Date(Date.now() - 86400000 * 2),
-      description:
-        "Este projeto está progredindo bem. Precisamos revisar os requisitos finais antes de continuar.",
-    },
-    {
-      id: "2",
-      author: "Maria Costa",
-      authorEmail: "maria@example.com",
-      createdAt: new Date(Date.now() - 3600000),
-      description: "Concordo! Podemos agendar uma reunião para amanhã?",
-    },
-    {
-      id: "3",
-      author: "Bruno Santos",
-      authorEmail: "bruno@example.com",
-      createdAt: new Date(Date.now() - 300000),
-      description: "Ótima ideia. Vou preparar os documentos necessários.",
-      isEdited: true,
-    },
-  ]);
-
-  const [editingId, setEditingId] = useState<string | null>(null);
-
+  useEffect(() => {
+    if (result.data) {
+      setComments(result.data.data)
+    }
+  }, [result])
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -88,19 +61,15 @@ export function TaskComments() {
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    const newComment: Comment = {
-      id: Date.now().toString(),
-      author: "You",
-      authorEmail: "you@example.com",
-      createdAt: new Date(),
-      description: values.message,
-    };
-    setComments([...comments, newComment]);
+    mutation.mutate(
+      {taskId, message: values.message, authorId: user!.id},
+      {
+        onError: () => {
+          toast.warning('Failed to create comment')
+        }
+      }
+    )
     form.reset();
-  };
-
-  const deleteComment = (id: string) => {
-    setComments(comments.filter((c) => c.id !== id));
   };
 
   const getInitial = (name: string) => {
@@ -126,21 +95,6 @@ export function TaskComments() {
       year:
         date.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
     });
-  };
-
-  const getUserColor = (name: string) => {
-    const colors = [
-      "bg-blue-500",
-      "bg-green-500",
-      "bg-purple-500",
-      "bg-orange-500",
-      "bg-pink-500",
-      "bg-indigo-500",
-      "bg-teal-500",
-      "bg-red-500",
-    ];
-    const index = name.charCodeAt(0) % colors.length;
-    return colors[index];
   };
 
   const messageLength = form.watch("message").length || 0;
@@ -188,77 +142,26 @@ export function TaskComments() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <Avatar className="size-9 ring-2 ring-background">
-                          <AvatarFallback
-                            className={getUserColor(comment.author)}
-                          >
+                          <AvatarFallback>
                             <span className="text-xs font-semibold text-white">
-                              {getInitial(comment.author)}
+                              {getInitial(comment.author.name)}
                             </span>
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <CardTitle className="text-sm font-semibold truncate">
-                            {comment.author}
+                            {comment.author.name}
                           </CardTitle>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                             <Clock className="size-3" />
-                            <span>{getTimeAgo(comment.createdAt)}</span>
-                            {comment.isEdited && (
-                              <>
-                                <span>•</span>
-                                <span className="italic">edited</span>
-                              </>
-                            )}
+                            <span>{getTimeAgo(new Date(comment.createdAt))}</span>
                           </div>
                         </div>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant={"ghost"}
-                          size={"icon"}
-                          className="size-7"
-                          onClick={() => setEditingId(comment.id)}
-                        >
-                          <Edit2 className="size-3.5" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant={"ghost"}
-                              size={"icon"}
-                              className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="size-3.5" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Delete comment?
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will
-                                permanently delete this comment
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteComment(comment.id)}
-                                className="bg-destructive hover:bg-destructive/90"
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className="text-sm leading-relaxed text-foreground/90">
-                    {comment.description}
+                    {comment.message}
                   </CardContent>
                 </Card>
               ))

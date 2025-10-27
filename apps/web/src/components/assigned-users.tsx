@@ -19,52 +19,40 @@ import {
 } from "./ui/tooltip";
 import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback } from "./ui/avatar";
+import type { ITask, IUser } from "@repo/core";
+import { useQueryUsers } from "../hooks/use-query-users";
+import { useUpdateTask } from "../hooks/use-update-task";
+import { useUserSession } from "../stores/session";
 
-const listUsers = [
-  {
-    id: "123",
-    name: "João Silva",
-    email: "joao@example.com",
-    color: "bg-blue-500",
-  },
-  {
-    id: "456",
-    name: "Bruno Santos",
-    email: "bruno@example.com",
-    color: "bg-green-500",
-  },
-  {
-    id: "789",
-    name: "Maria Costa",
-    email: "maria@example.com",
-    color: "bg-purple-500",
-  },
-  {
-    id: "101",
-    name: "Pedro Oliveira",
-    email: "pedro@example.com",
-    color: "bg-orange-500",
-  },
-];
-
-export function AssignedUsers() {
-  const [users, setUsers] = useState<typeof listUsers>([]);
+export function AssignedUsers(
+  {task}: {task: ITask}
+) {
+  const [users, setUsers] = useState<IUser[]>(useQueryUsers());
   const [open, setOpen] = useState(false);
+  const updateMutation = useUpdateTask()
+  const userSession = useUserSession()
 
-  const addUser = (user: (typeof listUsers)[0]) => {
+  const addUser = (user: IUser) => {
     if (!users.find((u) => u.id === user.id)) {
-      setUsers([...users, user]);
-    }
+    const assigneeIds = [
+      ...task.assignees.map(a => a.id), 
+      user.id,
+    ]
+
+    const uniqueAssigneeIds = Array.from(new Set(assigneeIds))
+
+    updateMutation.mutate({
+      id: task.id,
+      modifiedBy: userSession!.id,
+      assigneeIds: uniqueAssigneeIds,
+    })
+  }
     setOpen(false);
   };
 
   const removeUser = (id: string) => {
     setUsers(users.filter((u) => u.id !== id));
   };
-
-  const availableUsers = listUsers.filter(
-    (user) => !users.find((u) => u.id === user.id)
-  );
 
   const getInitials = (name: string) => {
     return name
@@ -105,7 +93,7 @@ export function AssignedUsers() {
                 <CommandList>
                   <CommandEmpty>No users found</CommandEmpty>
                   <CommandGroup heading="Available Users">
-                    {availableUsers.map((user) => (
+                    {users.map((user) => (
                       <CommandItem
                         key={user.id}
                         value={user.name}
@@ -113,7 +101,7 @@ export function AssignedUsers() {
                         className="flex items-center gap-3 cursor-pointer"
                       >
                         <Avatar className="h-8 w-8">
-                          <AvatarFallback className={user.color}>
+                          <AvatarFallback>
                             <span className="text-xs font-semibold text-white">
                               {getInitials(user.name)}
                             </span>
@@ -161,7 +149,7 @@ export function AssignedUsers() {
                   <TooltipTrigger asChild>
                     <div className="relative group">
                       <Avatar className="h-10 w-10 ring-2 ring-background hover:ring-primary/50 transition-all cursor-pointer">
-                        <AvatarFallback className={user.color}>
+                        <AvatarFallback>
                           <span className="text-sm font-semibold text-white">
                             {getInitials(user.name)}
                           </span>

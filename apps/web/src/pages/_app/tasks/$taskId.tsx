@@ -7,7 +7,7 @@ import {
 } from "../../../components/ui/sidebar";
 import { TaskComments } from "../../../components/task-comments";
 import { Button } from "../../../components/ui/button";
-import { Archive, ArrowLeft, Copy, MoreVertical, Trash2 } from "lucide-react";
+import { ArrowLeft, MoreVertical, Trash2 } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -33,6 +33,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../../../components/ui/alert-dialog";
+import { useQueryTask } from "../../../hooks/use-query-task";
+import { useEffect, useState } from "react";
+import type { ITask } from "@repo/core";
+import { useQueryClient } from "@tanstack/react-query";
+import { useDeleteTask } from "../../../hooks/use-delete-task";
+import { toast } from "sonner";
+import { useSocketConnect } from "../../../hooks/use-socket-connection";
+import { useGlobalEvents } from "../../../hooks/use-global-events";
 
 export const Route = createFileRoute("/_app/tasks/$taskId")({
   component: RouteComponent,
@@ -40,28 +48,35 @@ export const Route = createFileRoute("/_app/tasks/$taskId")({
 
 function RouteComponent() {
   const { taskId } = Route.useParams();
+  const [task, setTask] = useState<ITask>()
+  const query = useQueryTask(taskId)
+  const queryClient = useQueryClient()
+  const mutationDelete = useDeleteTask()
+  
+  const socket = useSocketConnect();
+  useGlobalEvents(socket);
 
-  const task = {
-    id: taskId,
-    title: "Implement new authentication system",
-    description: "Create a secure authentication system with JWT tokens",
-    comments: 3,
-    priority: "high" as const,
-    status: "in_progress" as const,
-    term: new Date(Date.now() + 86400000 * 5),
-  };
+  useEffect(() => {
+    if (query) {
+      setTask(query)
+    }
+  }, [query])
 
-  const handleDeleteTask = () => {
-    console.log("Delete task:", taskId);
-  };
-
-  const handleArchiveTask = () => {
-    console.log("Archive task:", taskId);
-  };
-
-  const handleDuplicateTask = () => {
-    console.log("Duplicate task:", taskId);
-  };
+  const handleDelete = () => {
+    mutationDelete.mutate(
+      task!.id,
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["tasks"] });
+          toast.success("Task deleted successfully");
+        },
+        onError: (error) => {
+          console.error("Error deleting task:", error);
+          toast.error("Failed to delete task");
+        },
+      }
+    );
+  }
 
   return (
     <SidebarProvider>
@@ -98,16 +113,7 @@ function RouteComponent() {
                 </Badge>
 
                 <div className="flex items-center gap-2">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <SidebarTrigger />
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom">
-                        <p>View comments ({task.comments})</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <SidebarTrigger />
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -120,14 +126,6 @@ function RouteComponent() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem onClick={handleDuplicateTask}>
-                        <Copy className="size-4 mr-2" />
-                        Duplicate Task
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleArchiveTask}>
-                        <Archive className="size-4 mr-2" />
-                        Archive Task
-                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
@@ -142,10 +140,10 @@ function RouteComponent() {
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle>
-                              Delte this task?
+                              Delete this task?
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                              This action cannot be undone. This will permantly
+                              This action cannot be undone. This will permantely
                               delete the task and all associated comments and
                               data.
                             </AlertDialogDescription>
@@ -153,7 +151,7 @@ function RouteComponent() {
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={handleDeleteTask}
+                              onClick={handleDelete}
                               className="bg-destructive hover:bg-destructive/90"
                             >
                               Delete Task
@@ -170,40 +168,19 @@ function RouteComponent() {
             {/* Main Content Area */}
             <div className="space-y-6 pb-8">
               <div className="animate-fade-in">
+                {task && 
                 <TaskScreenForm task={task} />
+                }
               </div>
 
               <div className="animate-fade-in">
-                <AssignedUsers />
-              </div>
-
-              <div className="animate-fade-in">
-                <div className="rounded-lg border bg-card p-6">
-                  <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                    <div className="size-2 rounded-full bg-primary animate-pulse" />
-                    Recent Activity
-                  </h3>
-                  <div className="space-y-3 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <div className="size-1.5 rounded-full bg-muted-foreground/50" />
-                      <span>Task created 2 days ago</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="size-1.5 rounded-full bg-muted-foreground" />
-                      <span>Status changed to "IN Progress" 1 day ago</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="size-1.5 rounded-full bg-muted-foreground" />
-                      <span>3 comments addes</span>
-                    </div>
-                  </div>
-                </div>
+                {task && <AssignedUsers task={task} />}
               </div>
             </div>
           </div>
         </div>
-        <TaskComments />
+        {task && <TaskComments taskId={task.id}/>}
       </div>
     </SidebarProvider>
   );
-}
+  }
