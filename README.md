@@ -2,6 +2,8 @@
 
 Este projeto é uma aplicação fullstack construída com **Turborepo**, composta por múltiplos serviços em **NestJS** e um frontend em **Vite + React**. A arquitetura é orientada a mensagens com **RabbitMQ**, e todos os serviços estão containerizados com **Docker**.
 
+---
+
 ## 📦 Estrutura do Projeto
 
 ```
@@ -18,6 +20,8 @@ taskflow/
 └── README.md
 ```
 
+---
+
 ## 🧠 Tecnologias Utilizadas
 
 ### Backend
@@ -33,32 +37,62 @@ taskflow/
 - **TanStack Router** para gerenciamento de rotas
 - **TanStack Query + Axios** para requisições e cache de dados
 
+---
+
 ## 🔐 Funcionalidades
 
-### Autenticação
-- Cadastro e login de usuários
-- Tokens JWT
+- **Autenticação**: Login, registro e refresh token (HTTP-only cookies)
+- **Tarefas**: CRUD completo + comentários
+- **Notificações**: Eventos disparados ao criar/editar/comentar tarefas, enviados via WebSocket
+- **Gateway**: Ponto único de entrada, comunicação assíncrona via RabbitMQ
 
-### Tarefas
-- Criação, edição e exclusão de tarefas
-- Visualização de lista de tarefas
-- Tela dedicada para cada tarefa com comentários
+---
 
-### Notificações
-- Envio de notificações entre serviços
-- Integração com eventos do sistema
+## 🏗 Decisões Técnicas
 
-### Gateway
-- Orquestra requisições entre os serviços
-- Exposição de APIs públicas
-- Comunicação assíncrona via RabbitMQ
+- **Arquitetura CQRS**:  
+  Optamos por CQRS para:
+  - Desacoplar responsabilidades entre leitura e escrita.
+  - Facilitar o disparo de eventos para outros serviços (ex.: notificações).
+  - Melhorar escalabilidade e manutenção.
+
+- **Mensageria com RabbitMQ**:  
+  Permite comunicação assíncrona entre serviços, garantindo resiliência e desacoplamento.
+
+- **Frontend com Vite + React**:  
+  Escolhido pela performance e simplicidade, aliado ao **TanStack Router** e **TanStack Query** para rotas e gerenciamento de estado.
+
+---
+
+## ⚠️ Problemas Conhecidos
+
+- **Filtros e Paginação**:  
+  Atualmente não implementados. A solução planejada é **carregamento dinâmico** (infinite scroll), semelhante ao feed do Facebook/Instagram.
+
+---
+
+## ⏱ Tempo de Desenvolvimento
+
+- **Frontend**: ~1 semana
+- **Backend**: ~1 semana
+
+---
 
 ## 🐳 Executando com Docker
 
 ```bash
-# Subir todos os serviços
 docker-compose up --build
 ```
 
-<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/b2358e33-d812-4017-a860-30c4661088d8" />
+---
+
+## 🔮 Próximos Passos
+
+- Implementar filtros e paginação dinâmica.
+- Melhorar testes de integração.
+- Adicionar documentação detalhada por serviço.
+
+---
+
+<img width="1024" height="683" alt="image" src="https://github.com/user-attachments/assets/b2358e33-d812-4017-a860-30c4661088d8" />
 
